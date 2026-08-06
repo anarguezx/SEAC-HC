@@ -1,0 +1,6 @@
+.DS_store
+.gitconfig
+.venv/
+.vscode/
+SEAC/__pycache__/
+results/

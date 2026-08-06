@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SEAC"
+version = "1.0.0"
+description = "Selective Ensemble Agglomerative Clustering"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "pyclustertend",
+    "scikit-learn",
+    "scipy",
+    "tqdm",
+    "validclust",
+]
+
+[tool.setuptools.packages.find]
+include = ["SEAC*"]
