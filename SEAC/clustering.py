@@ -107,7 +107,7 @@ def generate_primary_partitions(data, n_clusters, linkages, distances, output_di
 # Stage 2 – Select partitions by internal CVI
 # ---------------------------------------------------------------------------
 
-def select_partitions(output_dir, icvi):
+def select_partitions(primary_dir, output_dir, icvi):
     """Filter primary partitions by internal CVI score.
 
     For minimizing CVIs, partitions with scores at or below the mean are
@@ -117,10 +117,11 @@ def select_partitions(output_dir, icvi):
     output_dir: must contain primary_partitions.csv
     icvi: internal CVI to use for selection
     """
+    primary_dir = Path(primary_dir)
     output_dir = Path(output_dir)
     start = time.perf_counter()
 
-    df = pd.read_csv(output_dir / "primary_partitions.csv")
+    df = pd.read_csv(primary_dir / "primary_partitions.csv")
 
     if icvi not in INTERNAL_CVIS:
         raise ValueError(
