@@ -4,7 +4,7 @@ from .clustering import generate_primary_partitions, select_partitions, generate
 from .plots import plot_partitions
 
 
-def run_SEAC(data, true_labels, n_clusters, dataset_name, results_dir, icvi, 
+def run_SEAC(data, true_labels, n_clusters, dataset_name, dataset_dir, icvi, 
                  linkages=['single', 'complete', 'average'], 
                  distances=['euclidean', 'cityblock', 'cosine'], 
                  zero_indexed_labels=False, annotate=False):
@@ -14,7 +14,7 @@ def run_SEAC(data, true_labels, n_clusters, dataset_name, results_dir, icvi,
     true_labels: ground-truth cluster labels
     n_clusters: number of clusters
     dataset_name: used as subdirectory name under results_dir
-    results_dir: base output directory
+    dataset_dir: dataset output directory
     icvi: internal CVI used for partition selection
     linkages: linkage methods to use, defaults to LINKAGES
     distances: distance metrics to use, defaults to DISTANCES
@@ -22,30 +22,25 @@ def run_SEAC(data, true_labels, n_clusters, dataset_name, results_dir, icvi,
     annotate: if True, annotate each sample with its index in the plots
     """
 
-    output_dir = os.path.join(results_dir, dataset_name)
-    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(dataset_dir, exist_ok=True)
 
     primary_partitions, combo_names, t_base = generate_primary_partitions(
-        data, n_clusters, linkages, distances, output_dir,
+        data, n_clusters, linkages, distances, dataset_dir,
         zero_indexed_labels=zero_indexed_labels, 
         true_labels=true_labels
     )
 
     if not primary_partitions:
         raise ValueError("No valid primary partitions were generated.")
+    
+    reference_labels = (true_labels if true_labels is not None else primary_partitions[0])
 
-    reference_labels = (
-        true_labels
-        if true_labels is not None
-        else primary_partitions[0]
-    )
+    plot_partitions(dataset_dir, data, primary_partitions, "primary_partitions", combo_names, reference_labels, annotate=annotate)
 
-    plot_partitions(results_dir, data, primary_partitions, dataset_name, "primary_partitions", combo_names, reference_labels, annotate=annotate)
-
-    _, dissimilarity_matrix, t_select = select_partitions(output_dir, icvi)
+    _, dissimilarity_matrix, t_select = select_partitions(dataset_dir, icvi)
 
     final_partitions, final_combo_names, t_final = generate_final_partitions(
-        data, n_clusters, linkages, dissimilarity_matrix, output_dir,
+        data, n_clusters, linkages, dissimilarity_matrix, dataset_dir,
         zero_indexed_labels=zero_indexed_labels,
         true_labels=true_labels
     )
@@ -53,7 +48,7 @@ def run_SEAC(data, true_labels, n_clusters, dataset_name, results_dir, icvi,
     if not final_partitions:
         raise ValueError("No valid final partitions were generated.")
 
-    plot_partitions(results_dir, data, final_partitions, dataset_name, "final_partitions", final_combo_names, reference_labels, annotate=annotate)
+    plot_partitions(dataset_dir, data, final_partitions, "final_partitions", final_combo_names, reference_labels, annotate=annotate)
 
     return {
         "Dataset": dataset_name,

@@ -26,7 +26,7 @@ def plot_dendrogram(linkage_matrix, output_dir, linkage, distance, title):
         plt.close()
 
 
-def plot_partitions(output_dir, X, partitions, dataset_name, filename, combo_names, reference_labels, annotate=False, features=(0, 1)):
+def plot_partitions(output_dir, X, partitions, filename, combo_names, reference_labels, annotate=False, features=(0, 1)):
     """Plot all partitions in a grid, with labels aligned to a reference partition."""
 
     X = np.asarray(X, dtype=float)
@@ -76,5 +76,5 @@ def plot_partitions(output_dir, X, partitions, dataset_name, filename, combo_nam
         plt.legend(markerscale=1, fontsize=8, loc="best")
 
     plt.tight_layout()
-    plt.savefig(f"{output_dir}/{dataset_name}/{filename}.png")
+    plt.savefig(f"{output_dir}/{filename}.png")
     plt.close()
