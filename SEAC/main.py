@@ -7,7 +7,7 @@ from .plots import plot_partitions
 def run_SEAC(data, true_labels, n_clusters, dataset_name, results_dir, icvi, 
                  linkages=['single', 'complete', 'average'], 
                  distances=['euclidean', 'cityblock', 'cosine'], 
-                 zero_indexed_labels=False, epsilon=False, annotate=False):
+                 zero_indexed_labels=False, annotate=False):
     """Run the full ensemble hierarchical clustering pipeline on a single dataset.
 
     data: feature matrix (n_samples, n_features)
@@ -19,7 +19,6 @@ def run_SEAC(data, true_labels, n_clusters, dataset_name, results_dir, icvi,
     linkages: linkage methods to use, defaults to LINKAGES
     distances: distance metrics to use, defaults to DISTANCES
     zero_indexed_labels: subtract 1 from labels so they start at 0
-    epsilon: add 1e-12 to scaled data to avoid zero-distance issues
     annotate: if True, annotate each sample with its index in the plots
     """
 
@@ -29,7 +28,6 @@ def run_SEAC(data, true_labels, n_clusters, dataset_name, results_dir, icvi,
     primary_partitions, combo_names, t_base = generate_primary_partitions(
         data, n_clusters, linkages, distances, output_dir,
         zero_indexed_labels=zero_indexed_labels, 
-        epsilon=epsilon, 
         true_labels=true_labels
     )
 

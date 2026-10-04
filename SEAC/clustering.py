@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.spatial.distance import squareform
+from scipy.spatial.distance import pdist, squareform
 from tqdm import tqdm
 
 from .matrices import get_matrices_samples
@@ -49,7 +49,7 @@ FINAL_LABEL_COLUMN_INDEX = FINAL_COLUMNS.index("clustering")
 # Stage 1 – Primary partitions
 # ---------------------------------------------------------------------------
 
-def generate_primary_partitions(data, n_clusters, linkages, distances, output_dir, zero_indexed_labels, epsilon, true_labels=None):
+def generate_primary_partitions(data, n_clusters, linkages, distances, output_dir, zero_indexed_labels, true_labels=None):
     """Run every (linkage, distance) pair and record evaluation scores.
 
     data: data matrix (n_samples, n_features)
@@ -58,14 +58,11 @@ def generate_primary_partitions(data, n_clusters, linkages, distances, output_di
     distances: distance measures
     output_dir: where primary_partitions.csv and dendrograms are
     zero_indexed_labels: subtract 1 from labels so they start at 0
-    epsilon: add 1e-12 to scaled data to avoid zero-distance issues
     true_labels: ground-truth labels for external CVIs
     """
     output_dir = Path(output_dir)
 
     scaled_data = scale(data)
-    if epsilon:
-        scaled_data = scaled_data + 1e-12
 
     primary_partitions, combo_names, rows = [], [], []
     start = time.perf_counter()
@@ -74,7 +71,15 @@ def generate_primary_partitions(data, n_clusters, linkages, distances, output_di
         for link in linkages:
             for dist in distances:
 
-                ahc = linkage(scaled_data, method=link, metric=dist)
+                condensed_distances = pdist(scaled_data, metric=dist)
+
+                if not np.all(np.isfinite(condensed_distances)):
+                    print(f"[WARNING] Skipping {link}-{dist}: distance matrix contains non-finite values.")
+                    progress.update(1)
+                    continue
+
+                ahc = linkage(condensed_distances, method=link)
+
                 plot_dendrogram(ahc, output_dir, link, dist, title=f"Primary Partition Dendrogram ({link}, {dist})")
 
                 labels = fcluster(ahc, t=n_clusters, criterion="maxclust")
